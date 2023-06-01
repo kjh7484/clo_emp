@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clo.emp.mapper.EmployeeMapper">
+
+	<resultMap id="employeeResultMap" type="com.clo.emp.model.Employee">
+		<!--  <result property="id" column="id"/> -->
+        <result property="name" column="name"/>
+        <result property="email" column="email"/>
+        <result property="tel" column="tel"/>
+        <result property="joined" column="joined"/>
+    </resultMap>
+    
+    <!-- 전체 직원수 조회 -->
+    <select id="getEmployeeCount" resultType="int">
+        SELECT COUNT(*) FROM EMPLOYEE
+    </select>
+    
+    <!-- 직원수 조회(name) -->
+    <select id="getEmployeeNameCount" resultType="int">
+        SELECT COUNT(*) FROM EMPLOYEE WHERE NAME = #{name}
+    </select>
+    
+    <!-- 페이지 표시할 직원 조회 -->
+    <select id="getEmployeesByPage" resultMap="employeeResultMap">
+      SELECT * FROM (
+            SELECT ROW_NUMBER() OVER (ORDER BY id) AS RowNum, *
+            FROM EMPLOYEE
+        ) AS RowConstrainedResult
+        WHERE RowNum > #{offset}
+        AND RowNum <![CDATA[ <= ]]> #{offset} + #{pageSize}
+    </select>
+    
+    <!-- 직원 조회(name) -->
+    <select id="getEmployeeByName" resultMap="employeeResultMap" parameterType="String">
+        SELECT * FROM EMPLOYEE WHERE NAME = #{name} ORDER BY ID
+    </select>
+    
+    <!-- 직원 등록 -->
+    <insert id="addEmployees" parameterType="java.util.List">
+        INSERT INTO EMPLOYEE (name, email, tel, joined)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name}, #{item.email}, #{item.tel}, #{item.joined})
+        </foreach>
+    </insert>
+    
+</mapper>
